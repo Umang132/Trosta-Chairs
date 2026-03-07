@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Trosta Chairs | Best Quality Revolving Chairs</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+<style>
+
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:'Poppins',sans-serif;
+}
+
+body{
+background:#f5f7fb;
+color:#333;
+}
+
+header{
+background:#0d3b66;
+color:white;
+padding:15px;
+text-align:center;
+}
+
+header h1{
+font-size:24px;
+}
+
+header p{
+font-size:14px;
+opacity:.9;
+}
+
+.hero img{
+width:100%;
+display:block;
+}
+
+.container{
+padding:15px;
+max-width:1200px;
+margin:auto;
+}
+
+.filters{
+display:flex;
+gap:10px;
+flex-wrap:wrap;
+margin-bottom:15px;
+}
+
+.filters button{
+border:none;
+background:#e3e8ef;
+padding:8px 12px;
+border-radius:6px;
+cursor:pointer;
+}
+
+.filters button.active{
+background:#0d3b66;
+color:white;
+}
+
+.products{
+display:grid;
+grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
+gap:15px;
+}
+
+.product{
+background:white;
+border-radius:10px;
+padding:10px;
+box-shadow:0 2px 10px rgba(0,0,0,.08);
+display:flex;
+flex-direction:column;
+}
+
+.product img{
+width:100%;
+border-radius:8px;
+margin-bottom:8px;
+}
+
+.product h3{
+font-size:16px;
+}
+
+.price{
+color:#0d3b66;
+font-weight:600;
+margin:5px 0;
+}
+
+.product button{
+margin-top:auto;
+padding:8px;
+border:none;
+background:#0d3b66;
+color:white;
+border-radius:6px;
+cursor:pointer;
+}
+
+.cart-icon{
+position:fixed;
+bottom:20px;
+right:20px;
+background:#0d3b66;
+color:white;
+width:55px;
+height:55px;
+border-radius:50%;
+display:flex;
+align-items:center;
+justify-content:center;
+font-size:22px;
+cursor:pointer;
+box-shadow:0 3px 10px rgba(0,0,0,.3);
+}
+
+.cart-count{
+position:absolute;
+top:-5px;
+right:-5px;
+background:red;
+color:white;
+font-size:12px;
+padding:3px 6px;
+border-radius:50%;
+}
+
+.cart-modal{
+position:fixed;
+top:0;
+right:-100%;
+width:100%;
+max-width:420px;
+height:100%;
+background:white;
+box-shadow:-3px 0 10px rgba(0,0,0,.2);
+padding:20px;
+transition:.3s;
+overflow-y:auto;
+z-index:999;
+}
+
+.cart-modal.open{
+right:0;
+}
+
+.cart-item{
+display:flex;
+justify-content:space-between;
+margin:10px 0;
+}
+
+.qty{
+display:flex;
+gap:5px;
+}
+
+.qty button{
+width:25px;
+}
+
+.checkout{
+margin-top:15px;
+}
+
+.checkout input,
+.checkout textarea{
+width:100%;
+padding:8px;
+margin:5px 0;
+border:1px solid #ccc;
+border-radius:5px;
+}
+
+.checkout button{
+width:100%;
+padding:10px;
+background:#0d3b66;
+border:none;
+color:white;
+border-radius:6px;
+margin-top:10px;
+}
+
+.whatsapp{
+position:fixed;
+bottom:20px;
+left:20px;
+background:#25D366;
+color:white;
+padding:12px 15px;
+border-radius:50px;
+text-decoration:none;
+font-size:14px;
+}
+
+footer{
+text-align:center;
+padding:20px;
+font-size:14px;
+}
+
+</style>
+</head>
+
+<body>
+
+<header>
+<h1>Trosta Chairs</h1>
+<p>Revolving chairs at Best price and Best Quality</p>
+</header>
+
+<div class="hero">
+<img src="https://i.ibb.co/KcwRq3XY/Main-Banner.png" loading="lazy">
+</div>
+
+<div class="container">
+
+<div class="filters">
+<button class="active" onclick="filterProducts('all')">All</button>
+<button onclick="filterProducts('Executive chairs')">Executive Chairs</button>
+<button onclick="filterProducts('Ergonomic Chairs')">Ergonomic Chairs</button>
+<button onclick="filterProducts('Staff Chairs')">Staff Chairs</button>
+</div>
+
+<div class="products" id="products"></div>
+
+</div>
+
+<div class="cart-icon" onclick="toggleCart()">
+🛒
+<div class="cart-count" id="cart-count">0</div>
+</div>
+
+<div class="cart-modal" id="cart-modal">
+
+<h2>Your Cart</h2>
+
+<div id="cart-items"></div>
+
+<h3>Total: ₹<span id="cart-total">0</span></h3>
+
+<form class="checkout" action="https://formspree.io/f/xkoqneqn" method="POST" onsubmit="prepareOrder()">
+
+<input required name="Customer Name" placeholder="Customer Name">
+
+<input required name="Phone Number" placeholder="Phone Number">
+
+<textarea required name="Delivery Address" placeholder="Delivery Address"></textarea>
+
+<textarea name="Instructions" placeholder="Special Instructions"></textarea>
+
+<input type="hidden" name="Order Details" id="order-details">
+
+<button type="submit">Place Order</button>
+
+</form>
+
+</div>
+
+<a class="whatsapp" href="https://wa.me/917069031414">Chat on WhatsApp</a>
+
+<footer>
+
+<p>Trosta Chairs</p>
+
+<p>Rakhiyal, Ahmedabad, Gujarat</p>
+
+<p>Phone: +91 7069031414</p>
+
+<p>Email: Intactseatingsystem@gmail.com</p>
+
+</footer>
+
+<script>
+
+const products=[
+{name:"Bubble",price:13570,category:"Executive chairs",img:"https://i.ibb.co/whXmQStP/Bubble-1.jpg"},
+{name:"Amaze HB",price:4956,category:"Ergonomic Chairs",img:"https://i.ibb.co/gLRhvmsv/12.jpg"},
+{name:"Monarch",price:13570,category:"Executive chairs",img:"https://i.ibb.co/KjgM7VL0/Monarch.jpg"},
+{name:"Cherry",price:4956,category:"Staff Chairs",img:"https://i.ibb.co/5WwXHBfx/Cherry.jpg"}
+]
+
+let cart=JSON.parse(localStorage.getItem("cart"))||[]
+
+function renderProducts(list){
+
+const container=document.getElementById("products")
+
+container.innerHTML=""
+
+list.forEach(p=>{
+
+container.innerHTML+=`
+
+<div class="product">
+
+<img src="${p.img}" alt="${p.name}" loading="lazy">
+
+<h3>${p.name}</h3>
+
+<div class="price">₹${p.price}</div>
+
+<button onclick='addToCart("${p.name}",${p.price})'>Add to Cart</button>
+
+</div>
+
+`
+
+})
+
+}
+
+function filterProducts(cat){
+
+document.querySelectorAll(".filters button").forEach(b=>b.classList.remove("active"))
+
+event.target.classList.add("active")
+
+if(cat=="all") renderProducts(products)
+
+else renderProducts(products.filter(p=>p.category==cat))
+
+}
+
+function addToCart(name,price){
+
+let item=cart.find(i=>i.name==name)
+
+if(item) item.qty++
+
+else cart.push({name,price,qty:1})
+
+saveCart()
+
+}
+
+function saveCart(){
+
+localStorage.setItem("cart",JSON.stringify(cart))
+
+updateCartUI()
+
+}
+
+function updateCartUI(){
+
+document.getElementById("cart-count").innerText=cart.reduce((a,b)=>a+b.qty,0)
+
+const items=document.getElementById("cart-items")
+
+items.innerHTML=""
+
+let total=0
+
+cart.forEach((i,index)=>{
+
+let subtotal=i.qty*i.price
+
+total+=subtotal
+
+items.innerHTML+=`
+
+<div class="cart-item">
+
+<div>
+
+<b>${i.name}</b>
+
+<br>₹${i.price}
+
+</div>
+
+<div class="qty">
+
+<button onclick="changeQty(${index},-1)">-</button>
+
+${i.qty}
+
+<button onclick="changeQty(${index},1)">+</button>
+
+<button onclick="removeItem(${index})">x</button>
+
+</div>
+
+</div>
+
+`
+
+})
+
+document.getElementById("cart-total").innerText=total
+
+}
+
+function changeQty(i,delta){
+
+cart[i].qty+=delta
+
+if(cart[i].qty<=0) cart.splice(i,1)
+
+saveCart()
+
+}
+
+function removeItem(i){
+
+cart.splice(i,1)
+
+saveCart()
+
+}
+
+function toggleCart(){
+
+document.getElementById("cart-modal").classList.toggle("open")
+
+}
+
+function prepareOrder(){
+
+let summary=""
+
+let total=0
+
+cart.forEach(i=>{
+
+summary+=`${i.name} | Qty:${i.qty} | ₹${i.price*i.qty}\n`
+
+total+=i.qty*i.price
+
+})
+
+summary+=`\nTotal: ₹${total}`
+
+document.getElementById("order-details").value=summary
+
+localStorage.removeItem("cart")
+
+alert("Order placed! Trosta Chairs will contact you on WhatsApp.")
+
+}
+
+renderProducts(products)
+
+updateCartUI()
+
+</script>
+
+</body>
+</html>
