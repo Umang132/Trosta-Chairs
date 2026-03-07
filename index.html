@@ -1,0 +1,353 @@
+import React, { useState, useEffect, useRef } from 'react';
+import { motion, useScroll, useTransform, MotionValue, AnimatePresence } from 'framer-motion';
+import { 
+  ShoppingBag, 
+  Menu, 
+  X, 
+  ChevronRight, 
+  Star, 
+  ShieldCheck, 
+  Truck, 
+  Clock,
+  Instagram,
+  Facebook,
+  Twitter
+} from 'lucide-react';
+
+/**
+ * COMPONENT: ContainerScroll
+ * The core requested animation component.
+ */
+const ContainerScroll = ({ titleComponent, children }) => {
+  const containerRef = useRef(null);
+  const { scrollYProgress } = useScroll({
+    target: containerRef,
+    offset: ["start start", "end start"]
+  });
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth <= 768);
+    checkMobile();
+    window.addEventListener("resize", checkMobile);
+    return () => window.removeEventListener("resize", checkMobile);
+  }, []);
+
+  const scaleDimensions = () => isMobile ? [0.7, 0.9] : [1.05, 1];
+
+  const rotate = useTransform(scrollYProgress, [0, 0.2], [20, 0]);
+  const scale = useTransform(scrollYProgress, [0, 0.2], scaleDimensions());
+  const translate = useTransform(scrollYProgress, [0, 0.2], [0, -100]);
+
+  return (
+    <div
+      className="h-[120vh] md:h-[150vh] flex items-center justify-center relative p-2 md:p-20 bg-[#FAFAF9]"
+      ref={containerRef}
+    >
+      <div
+        className="py-10 md:py-40 w-full relative"
+        style={{ perspective: "1000px" }}
+      >
+        <motion.div
+          style={{ translateY: translate }}
+          className="max-w-5xl mx-auto text-center mb-10"
+        >
+          {titleComponent}
+        </motion.div>
+        
+        <motion.div
+          style={{
+            rotateX: rotate,
+            scale,
+            boxShadow: "0 0 #0000004d, 0 9px 20px #0000004a, 0 37px 37px #00000042, 0 84px 50px #00000026, 0 149px 60px #0000000a, 0 233px 65px #00000003",
+          }}
+          className="max-w-5xl -mt-12 mx-auto h-[35rem] md:h-[45rem] w-full border-4 border-[#EAE0D5] p-2 md:p-6 bg-[#2C2C2C] rounded-[30px] shadow-2xl overflow-hidden"
+        >
+          <div className="h-full w-full overflow-hidden rounded-2xl bg-zinc-900">
+            {children}
+          </div>
+        </motion.div>
+      </div>
+    </div>
+  );
+};
+
+/**
+ * COMPONENT: Navbar
+ */
+const Navbar = () => {
+  const [isOpen, setIsOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => setScrolled(window.scrollY > 50);
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  return (
+    <nav className={`fixed w-full z-50 transition-all duration-300 ${scrolled ? 'bg-white/90 backdrop-blur-md py-4 shadow-sm' : 'bg-transparent py-6'}`}>
+      <div className="max-w-7xl mx-auto px-6 flex justify-between items-center">
+        <div className="flex items-center gap-2">
+          <span className="text-2xl font-bold tracking-tighter text-[#8B5A2B]">TROSTA</span>
+        </div>
+
+        {/* Desktop Menu */}
+        <div className="hidden md:flex items-center gap-10 text-sm font-medium text-gray-700">
+          <a href="#" className="hover:text-[#8B5A2B] transition-colors">Collection</a>
+          <a href="#" className="hover:text-[#8B5A2B] transition-colors">Craftsmanship</a>
+          <a href="#" className="hover:text-[#8B5A2B] transition-colors">Showroom</a>
+          <a href="#" className="hover:text-[#8B5A2B] transition-colors">Sustainability</a>
+        </div>
+
+        <div className="flex items-center gap-4">
+          <button className="p-2 hover:bg-gray-100 rounded-full transition-colors relative">
+            <ShoppingBag size={20} />
+            <span className="absolute top-1 right-1 w-2 h-2 bg-[#8B5A2B] rounded-full"></span>
+          </button>
+          <button onClick={() => setIsOpen(!isOpen)} className="md:hidden p-2">
+            {isOpen ? <X size={24} /> : <Menu size={24} />}
+          </button>
+        </div>
+      </div>
+
+      {/* Mobile Menu */}
+      <AnimatePresence>
+        {isOpen && (
+          <motion.div 
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: 'auto' }}
+            exit={{ opacity: 0, height: 0 }}
+            className="md:hidden bg-white border-b border-gray-100 overflow-hidden"
+          >
+            <div className="flex flex-col p-6 gap-4 text-lg font-medium">
+              <a href="#" onClick={() => setIsOpen(false)}>Collection</a>
+              <a href="#" onClick={() => setIsOpen(false)}>Craftsmanship</a>
+              <a href="#" onClick={() => setIsOpen(false)}>Showroom</a>
+              <a href="#" onClick={() => setIsOpen(false)}>Cart (0)</a>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </nav>
+  );
+};
+
+/**
+ * MAIN APP COMPONENT
+ */
+export default function App() {
+  const products = [
+    { id: 1, name: "The Nordic Lounge", price: "$1,200", img: "https://images.unsplash.com/photo-1592078615290-033ee584e267?auto=format&fit=crop&q=80&w=800" },
+    { id: 2, name: "Elysian Swivel", price: "$850", img: "https://images.unsplash.com/photo-1567538096630-e0c55bd6374c?auto=format&fit=crop&q=80&w=800" },
+    { id: 3, name: "Sienna Dining", price: "$450", img: "https://images.unsplash.com/photo-1503602642458-232111445657?auto=format&fit=crop&q=80&w=800" },
+    { id: 4, name: "Aero Task Chair", price: "$920", img: "https://images.unsplash.com/photo-1506439773649-6e0eb8cfb237?auto=format&fit=crop&q=80&w=800" }
+  ];
+
+  return (
+    <div className="min-h-screen bg-[#FAFAF9] text-gray-900 selection:bg-[#E2A76F] selection:text-white">
+      <Navbar />
+
+      {/* Hero with Scroll Animation */}
+      <section className="relative overflow-hidden">
+        <ContainerScroll
+          titleComponent={
+            <div className="space-y-4">
+              <motion.span 
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="inline-block text-xs font-bold tracking-[0.3em] uppercase text-[#8B5A2B]"
+              >
+                Established 1984
+              </motion.span>
+              <h1 className="text-5xl md:text-8xl font-bold text-gray-900 tracking-tight">
+                Designed for <br />
+                <span className="text-[#8B5A2B]">Lifetimes</span>
+              </h1>
+              <p className="text-gray-500 max-w-lg mx-auto text-lg">
+                Experience the intersection of ergonomic science and timeless Nordic craftsmanship.
+              </p>
+            </div>
+          }
+        >
+          <img
+            src="https://images.unsplash.com/photo-1598300042247-d088f8ab3a91?auto=format&fit=crop&q=80&w=2000"
+            alt="Trosta hero chair"
+            className="mx-auto rounded-2xl object-cover h-full w-full object-center"
+            draggable={false}
+          />
+        </ContainerScroll>
+      </section>
+
+      {/* Core Values */}
+      <section className="py-24 px-6 bg-white">
+        <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-16">
+          <div className="space-y-4">
+            <div className="w-12 h-12 bg-[#FAF5F0] flex items-center justify-center rounded-xl text-[#8B5A2B]">
+              <ShieldCheck size={24} />
+            </div>
+            <h3 className="text-xl font-bold">10-Year Warranty</h3>
+            <p className="text-gray-500">Every Trosta chair is built with high-tensile steel and premium leather, backed by a decade-long promise of quality.</p>
+          </div>
+          <div className="space-y-4">
+            <div className="w-12 h-12 bg-[#FAF5F0] flex items-center justify-center rounded-xl text-[#8B5A2B]">
+              <Clock size={24} />
+            </div>
+            <h3 className="text-xl font-bold">24/7 Comfort</h3>
+            <p className="text-gray-500">Engineered with multi-density foam layers that adapt to your posture, preventing fatigue even during long sessions.</p>
+          </div>
+          <div className="space-y-4">
+            <div className="w-12 h-12 bg-[#FAF5F0] flex items-center justify-center rounded-xl text-[#8B5A2B]">
+              <Truck size={24} />
+            </div>
+            <h3 className="text-xl font-bold">White-Glove Delivery</h3>
+            <p className="text-gray-500">We don't just ship; we deliver, assemble, and place your piece exactly where it belongs in your home.</p>
+          </div>
+        </div>
+      </section>
+
+      {/* Featured Products */}
+      <section className="py-24 px-6">
+        <div className="max-w-7xl mx-auto">
+          <div className="flex justify-between items-end mb-12">
+            <div>
+              <h2 className="text-3xl font-bold">The Essential Collection</h2>
+              <p className="text-gray-500 mt-2">Curated pieces for the modern home office.</p>
+            </div>
+            <button className="group flex items-center gap-2 font-semibold text-[#8B5A2B] hover:gap-4 transition-all">
+              View All <ChevronRight size={18} />
+            </button>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+            {products.map((product) => (
+              <motion.div 
+                key={product.id}
+                whileHover={{ y: -10 }}
+                className="group cursor-pointer"
+              >
+                <div className="aspect-[4/5] overflow-hidden rounded-3xl bg-gray-100 relative mb-4">
+                  <img src={product.img} alt={product.name} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
+                  <button className="absolute bottom-4 right-4 bg-white p-3 rounded-full shadow-lg opacity-0 group-hover:opacity-100 transition-opacity translate-y-2 group-hover:translate-y-0 duration-300">
+                    <ShoppingBag size={20} className="text-[#8B5A2B]" />
+                  </button>
+                </div>
+                <div className="flex justify-between items-start">
+                  <div>
+                    <h4 className="font-bold text-lg">{product.name}</h4>
+                    <p className="text-gray-400 text-sm">Designer Series</p>
+                  </div>
+                  <span className="font-bold text-gray-900">{product.price}</span>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Story Section */}
+      <section className="py-32 bg-[#2C2C2C] text-white overflow-hidden">
+        <div className="max-w-7xl mx-auto px-6 grid grid-cols-1 lg:grid-cols-2 gap-20 items-center">
+          <div className="relative">
+            <div className="absolute -top-10 -left-10 w-40 h-40 bg-[#8B5A2B]/20 rounded-full blur-3xl"></div>
+            <img 
+              src="https://images.unsplash.com/photo-1581539250439-c96689b516dd?auto=format&fit=crop&q=80&w=1000" 
+              className="rounded-3xl shadow-2xl relative z-10"
+              alt="Craftsmanship"
+            />
+          </div>
+          <div className="space-y-8">
+            <span className="text-[#E2A76F] font-bold uppercase tracking-widest text-xs">Our Heritage</span>
+            <h2 className="text-4xl md:text-5xl font-bold leading-tight">Crafted by hands, <br />perfected by nature.</h2>
+            <p className="text-gray-400 text-lg leading-relaxed">
+              Every Trosta chair begins in the forests of Scandinavia. We select each piece of timber for its grain structure and durability. Our artisans then spend over 40 hours on a single chair, ensuring that every joint is seamless and every curve is perfect.
+            </p>
+            <div className="grid grid-cols-2 gap-8 pt-4">
+              <div>
+                <p className="text-3xl font-bold text-[#E2A76F]">12k+</p>
+                <p className="text-sm text-gray-500">Chairs Hand-Finished</p>
+              </div>
+              <div>
+                <p className="text-3xl font-bold text-[#E2A76F]">100%</p>
+                <p className="text-sm text-gray-500">Sustainably Sourced</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Testimonials */}
+      <section className="py-24 bg-white">
+        <div className="max-w-7xl mx-auto px-6 text-center">
+          <div className="flex justify-center gap-1 text-[#E2A76F] mb-6">
+            {[...Array(5)].map((_, i) => <Star key={i} size={20} fill="currentColor" />)}
+          </div>
+          <blockquote className="text-2xl md:text-4xl font-medium max-w-3xl mx-auto italic leading-snug">
+            "Trosta has completely redefined what I expect from my workspace. It's the first time a piece of furniture has felt like a true investment in my long-term health."
+          </blockquote>
+          <div className="mt-8 flex items-center justify-center gap-4">
+            <div className="w-12 h-12 rounded-full bg-gray-200 overflow-hidden">
+              <img src="https://i.pravatar.cc/150?u=trosta" alt="User" />
+            </div>
+            <div className="text-left">
+              <p className="font-bold">Evelyn Harper</p>
+              <p className="text-sm text-gray-500">Architectural Lead, Studio H</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Footer */}
+      <footer className="bg-[#1A1A1A] text-white pt-24 pb-12 px-6">
+        <div className="max-w-7xl mx-auto">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-20">
+            <div className="space-y-6">
+              <h3 className="text-2xl font-bold tracking-tighter text-[#E2A76F]">TROSTA</h3>
+              <p className="text-gray-500 text-sm">Elevating the standards of seating since 1984. Join our mailing list for exclusive early access to new collections.</p>
+              <div className="flex gap-4">
+                <a href="#" className="p-2 bg-white/5 rounded-full hover:bg-white/10 transition-colors"><Instagram size={18} /></a>
+                <a href="#" className="p-2 bg-white/5 rounded-full hover:bg-white/10 transition-colors"><Facebook size={18} /></a>
+                <a href="#" className="p-2 bg-white/5 rounded-full hover:bg-white/10 transition-colors"><Twitter size={18} /></a>
+              </div>
+            </div>
+            <div>
+              <h4 className="font-bold mb-6">Shop</h4>
+              <ul className="space-y-4 text-gray-500 text-sm">
+                <li><a href="#" className="hover:text-white transition-colors">Office Collection</a></li>
+                <li><a href="#" className="hover:text-white transition-colors">Lounge Chairs</a></li>
+                <li><a href="#" className="hover:text-white transition-colors">Dining Series</a></li>
+                <li><a href="#" className="hover:text-white transition-colors">Limited Editions</a></li>
+              </ul>
+            </div>
+            <div>
+              <h4 className="font-bold mb-6">Company</h4>
+              <ul className="space-y-4 text-gray-500 text-sm">
+                <li><a href="#" className="hover:text-white transition-colors">Our Story</a></li>
+                <li><a href="#" className="hover:text-white transition-colors">Sustainability</a></li>
+                <li><a href="#" className="hover:text-white transition-colors">Careers</a></li>
+                <li><a href="#" className="hover:text-white transition-colors">Contact</a></li>
+              </ul>
+            </div>
+            <div>
+              <h4 className="font-bold mb-6">Support</h4>
+              <ul className="space-y-4 text-gray-500 text-sm">
+                <li><a href="#" className="hover:text-white transition-colors">Shipping & Returns</a></li>
+                <li><a href="#" className="hover:text-white transition-colors">Warranty Info</a></li>
+                <li><a href="#" className="hover:text-white transition-colors">Fabric Care</a></li>
+                <li><a href="#" className="hover:text-white transition-colors">FAQ</a></li>
+              </ul>
+            </div>
+          </div>
+          <div className="pt-8 border-t border-white/10 flex flex-col md:flex-row justify-between items-center gap-4 text-xs text-gray-500">
+            <p>© 2024 Trosta Chairs International. All rights reserved.</p>
+            <div className="flex gap-8">
+              <a href="#" className="hover:text-white">Privacy Policy</a>
+              <a href="#" className="hover:text-white">Terms of Service</a>
+              <a href="#" className="hover:text-white">Cookies</a>
+            </div>
+          </div>
+        </div>
+      </footer>
+    </div>
+  );
+}
