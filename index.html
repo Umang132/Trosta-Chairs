@@ -112,17 +112,94 @@
             min-height: 520px; overflow: hidden;
             display: flex; align-items: center;
         }
-        .hero-img {
-            position: absolute; inset: 0; width: 100%; height: 100%;
-            object-fit: cover; z-index: 0;
+
+        /* --- 3D Slider --- */
+        .hero-slider {
+            position: absolute; inset: 0;
+            z-index: 0;
+            perspective: 1200px;
         }
+        .hero-slide {
+            position: absolute; inset: 0;
+            opacity: 0;
+            transform: rotateY(90deg) scale(0.85);
+            transition: opacity 1s ease, transform 1s cubic-bezier(0.4, 0, 0.2, 1);
+            backface-visibility: hidden;
+        }
+        .hero-slide.active {
+            opacity: 1;
+            transform: rotateY(0deg) scale(1);
+            z-index: 1;
+        }
+        .hero-slide.exit-left {
+            opacity: 0;
+            transform: rotateY(-45deg) scale(0.9) translateX(-15%);
+        }
+        .hero-slide img {
+            width: 100%; height: 100%;
+            object-fit: cover;
+        }
+
+        /* Slider dots */
+        .slider-dots {
+            position: absolute; bottom: 28px; left: 50%;
+            transform: translateX(-50%);
+            display: flex; gap: 10px;
+            z-index: 5;
+        }
+        .slider-dot {
+            width: 12px; height: 12px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.4);
+            border: 2px solid rgba(255,255,255,0.6);
+            cursor: pointer;
+            transition: all 0.4s ease;
+            padding: 0;
+        }
+        .slider-dot.active {
+            background: var(--secondary);
+            border-color: var(--secondary);
+            transform: scale(1.25);
+            box-shadow: 0 0 12px rgba(193,154,107,0.5);
+        }
+
+        /* Slider arrows */
+        .slider-arrow {
+            position: absolute; top: 50%; z-index: 5;
+            transform: translateY(-50%);
+            width: 44px; height: 44px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.15);
+            backdrop-filter: blur(6px);
+            border: 1px solid rgba(255,255,255,0.25);
+            color: #fff; font-size: 1.4rem;
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            padding: 0;
+        }
+        .slider-arrow:hover {
+            background: rgba(255,255,255,0.3);
+            transform: translateY(-50%) scale(1.1);
+        }
+        .slider-arrow.prev { left: 20px; }
+        .slider-arrow.next { right: 20px; }
+
+        /* Progress bar */
+        .slider-progress {
+            position: absolute; bottom: 0; left: 0;
+            height: 3px; background: var(--secondary);
+            z-index: 5;
+            transition: width linear;
+        }
+
         .hero-overlay {
             position: absolute; inset: 0;
             background: linear-gradient(90deg, rgba(26,26,46,0.82) 0%, rgba(26,26,46,0.45) 100%);
-            z-index: 1;
+            z-index: 2;
         }
         .hero-content {
-            position: relative; z-index: 2;
+            position: relative; z-index: 3;
             max-width: 1200px; margin: 0 auto; padding: 80px 20px;
             color: #fff;
         }
@@ -171,6 +248,9 @@
             .hero-content h1 { font-size: 2.4rem; }
             .hero-content h1 .highlight { font-size: 3.2rem; }
             .hero { min-height: 420px; }
+            .slider-arrow { width: 36px; height: 36px; font-size: 1.1rem; }
+            .slider-arrow.prev { left: 10px; }
+            .slider-arrow.next { right: 10px; }
         }
 
         /* ===================== STATS ===================== */
@@ -600,9 +680,39 @@
     <a href="#contact" onclick="closeMobileNav()">Contact Us</a>
 </div>
 
-<!-- ============ HERO ============ -->
-<section class="hero">
-    <img src="https://github.com/user-attachments/assets/dc7e48d4-ddb9-424a-9198-2d92609249a1" alt="Trosta Chairs hero – premium office chairs" class="hero-img">
+<!-- ============ HERO with 3D Slider ============ -->
+<section class="hero" id="heroSlider">
+    <!-- 3D Image Slider -->
+    <div class="hero-slider">
+        <div class="hero-slide active">
+            <img src="Main%20Banner.png" alt="Trosta Chairs – Premium office chairs from Ahmedabad">
+        </div>
+        <div class="hero-slide">
+            <img src="Home%20Page.2.png" alt="Trosta executive and ergonomic chair collection">
+        </div>
+        <div class="hero-slide">
+            <img src="Home%20Page.3.png" alt="Trosta high-back mesh and visitor chairs">
+        </div>
+        <div class="hero-slide">
+            <img src="Home%20Page.4.png" alt="Trosta Chairs – Transform your workspace">
+        </div>
+    </div>
+
+    <!-- Slider navigation arrows -->
+    <button class="slider-arrow prev" aria-label="Previous slide" onclick="heroSlider.prev()">&#10094;</button>
+    <button class="slider-arrow next" aria-label="Next slide" onclick="heroSlider.next()">&#10095;</button>
+
+    <!-- Dot indicators -->
+    <div class="slider-dots">
+        <button class="slider-dot active" aria-label="Go to slide 1" onclick="heroSlider.goTo(0)"></button>
+        <button class="slider-dot" aria-label="Go to slide 2" onclick="heroSlider.goTo(1)"></button>
+        <button class="slider-dot" aria-label="Go to slide 3" onclick="heroSlider.goTo(2)"></button>
+        <button class="slider-dot" aria-label="Go to slide 4" onclick="heroSlider.goTo(3)"></button>
+    </div>
+
+    <!-- Auto-advance progress bar -->
+    <div class="slider-progress" id="sliderProgress"></div>
+
     <div class="hero-overlay"></div>
     <div class="hero-content">
         <h1>OFFICE<span class="highlight">CHAIR</span></h1>
@@ -913,6 +1023,99 @@
 </div>
 
 <script>
+    // ============ 3D HERO SLIDER ============
+    const heroSlider = (() => {
+        const slides = document.querySelectorAll('.hero-slide');
+        const dots = document.querySelectorAll('.slider-dot');
+        const progressBar = document.getElementById('sliderProgress');
+        const INTERVAL = 5000; // 5 seconds per slide
+        let current = 0;
+        let timer = null;
+        let progressTimer = null;
+        let progressStart = 0;
+
+        function goTo(index) {
+            if (index === current) return;
+            // Exit current slide
+            slides[current].classList.remove('active');
+            slides[current].classList.add('exit-left');
+            dots[current].classList.remove('active');
+
+            // Clean up exit class after transition
+            const exitSlide = slides[current];
+            setTimeout(() => exitSlide.classList.remove('exit-left'), 1100);
+
+            // Enter new slide
+            current = index;
+            slides[current].classList.add('active');
+            dots[current].classList.add('active');
+
+            resetProgress();
+        }
+
+        function next() {
+            goTo((current + 1) % slides.length);
+        }
+
+        function prev() {
+            goTo((current - 1 + slides.length) % slides.length);
+        }
+
+        function resetProgress() {
+            // Reset progress bar animation
+            progressBar.style.transition = 'none';
+            progressBar.style.width = '0%';
+
+            // Force reflow then animate
+            void progressBar.offsetWidth;
+            progressBar.style.transition = 'width ' + INTERVAL + 'ms linear';
+            progressBar.style.width = '100%';
+
+            // Reset auto-advance timer
+            clearTimeout(timer);
+            timer = setTimeout(next, INTERVAL);
+        }
+
+        function start() {
+            resetProgress();
+        }
+
+        // Pause on hover, resume on leave
+        const heroEl = document.getElementById('heroSlider');
+        heroEl.addEventListener('mouseenter', () => {
+            clearTimeout(timer);
+            progressBar.style.transition = 'none';
+            // Keep current width (pause feel)
+        });
+        heroEl.addEventListener('mouseleave', () => {
+            resetProgress();
+        });
+
+        // Touch swipe support
+        let touchStartX = 0;
+        heroEl.addEventListener('touchstart', (e) => {
+            touchStartX = e.changedTouches[0].screenX;
+        }, { passive: true });
+        heroEl.addEventListener('touchend', (e) => {
+            const diff = e.changedTouches[0].screenX - touchStartX;
+            if (Math.abs(diff) > 50) {
+                if (diff < 0) next(); else prev();
+            }
+        }, { passive: true });
+
+        // Keyboard support
+        heroEl.setAttribute('tabindex', '0');
+        heroEl.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowLeft') prev();
+            else if (e.key === 'ArrowRight') next();
+        });
+
+        // Start the slider
+        start();
+
+        return { goTo, next, prev };
+    })();
+
     // ============ PRODUCT DATA ============
     const products = [
         { id: 1, name: "KENZO", price: 13570, category: "Executive Chairs", image: "https://trostachairs.com/wp-content/uploads/2025/07/Kenzo.jpg", desc: "Premium executive high-back revolving chair designed for modern leaders. Rich brown leatherette with elegant diamond-stitched detailing, contoured backrest for full spine support." },
