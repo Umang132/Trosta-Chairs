@@ -1031,8 +1031,6 @@
         const INTERVAL = 5000; // 5 seconds per slide
         let current = 0;
         let timer = null;
-        let progressTimer = null;
-        let progressStart = 0;
 
         function goTo(index) {
             if (index === current) return;
@@ -1066,7 +1064,7 @@
             progressBar.style.transition = 'none';
             progressBar.style.width = '0%';
 
-            // Force reflow then animate
+            // Force browser reflow to restart CSS transition
             void progressBar.offsetWidth;
             progressBar.style.transition = 'width ' + INTERVAL + 'ms linear';
             progressBar.style.width = '100%';
